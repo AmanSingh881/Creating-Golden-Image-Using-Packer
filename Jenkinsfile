@@ -1,33 +1,20 @@
 pipeline {
     agent any
+
     stages {
-        stage("AWS Demo") {
+        
+        // Clone the GitHub repository
+        stage('Git Checkout') {
             steps {
-                withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws_credential',
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]
-                ]) {
-                    sh "aws s3 ls"
-                }
+                git branch: 'main',  url: 'https://github.com/AmanSingh881/Creating-Golden-Image-Using-Packer.git'
+                sh "ls"
             }
         }
-        stage("Building AMI") {
+        
+        stage('packer image build') {
             steps {
-                withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws_credential',
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]
-                ]) {
-                    sh "packer init aws-ami-v1.pkr.hcl"
-                    sh "packer build aws-ami-v1.pkr.hcl"
-                }
+                sh "packer init project.pkr.hcl"
+                sh "packer build project.pkr.hcl"
             }
         }
     }
